@@ -102,6 +102,8 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps)(deleteInServer)
 ```
 
+redux-haiku will make sure that the Subscriber functions (`putInServer`, `deleteInServer`) _don't even get called_ if the `mapStateToProps` returns `undefined`. That plus the fact that the state diff is done in a small fraction of it more or less guarantees that the resulting implementation will remain performant.
+
 You can try it yourself in the `example` (TODO. Also provide some sort of live example with localStorage as side-effect instead of REST so it can be run completely local in the browser).
 
 Finally, the integration as it's done in the store setup:
@@ -127,5 +129,36 @@ Now, that doesn't mean that redux-haiku fails at it's promise. The reality is th
 - Multiple universes: events happened in a certain way in our timeline, but by going back we don't really land into the same timeline but instead we create a new one starting at the point that we rewind to. When we start going forward from there however, the events can diverge from the original timeline, and we can get an alternate universe where everything looks slightly dissimilar yet its structure is the same.
 
 In the Multiple Universes timeline, we could get a failure when trying to create an article in the server, or a connection failure when trying to delete: whatever the issue, the resulting actions triggered by the side-effects would look different. This is a shame, but we could, actually, mitigate this: we simply need to react to failures by retrying until we succeed. The point is to achieve something the server-side folks call "eventual consistency" in which when going back and replaying, the resulting application state (that is, not just the redux store state but also including side-effects) eventually achieves the same state as it was in the main timeline at that particular point in time. Granted, there might be some ripples happening in the way (and it might be completely impossible if the side-effect relied on a service that went offline) but the fact that it's even possible to recover the entire application state deriving from the data in the store points to the resilience of this architecture, not to mention the fact that the implementation remains declarative and simple to understand and predictable within the margin of trust in the necessary services for the side-effects to occur.
+
+## Deterministic side-effects
+
+That said, there are many deterministic side-effects that, in a similar manner to the DOM, can be done without risks of inconsistency in the resulting application state. For those cases, time travel is true and real: and one can wonder, if it's possible to implement them in a way that supports time traveling and makes the binding so simple, why doing them with some other strategy at all?
+
+The most natural example is `localStorage`:
+
+```javascript
+import { connect } from 'redux-haiku'
+
+const syncToLocalStorage = ({ articles }) => {
+  localStorage.setItem('articles', JSON.stringify(articles))
+}
+
+const mapStateToProps = (state, prevState) => {
+  // To be fair, there is no even need to use a diff in this example.
+  // Since references are kept by Redux unless something inside the
+  // collection changed, we can simply do a hard equality comparison
+  return state.articles !== prevState.articles && {
+    articles: state.articles
+  }
+}
+
+export default connect(mapStateToProps)(syncToLocalStorage)
+```
+
+There.
+
+## Kudos
+
+...to the people of redux-saga for a nice original idea and an impressive implementation. The tongue-in-cheek reference to sagas in the introduction haiku is meant as a tribute and to give context to the name of redux-haiku. Thank you folks.
 
 > Oh, and a final note: feature-wise, this is super alpha, because the underlying diffing library `object-difference` is not stable at all yet. Other than that it should be bug free. Still, you're welcome to use it in production: after all, you are very likely already compiling stage-0 babel code, which is not even standard yet, you naughty naughty kid.

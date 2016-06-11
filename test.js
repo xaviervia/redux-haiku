@@ -72,67 +72,66 @@ example(`save an item removed after it's is added`, (done) => {
   /* SELECTORS */
   const getItemKeysSelector = (state) =>
     state &&
-    state.items.map(({ key }) => key)
+    state.items.map(({ key }) => ({ key }))
 
-  // /* SUBSCRIBER *new shiny thing*
-  //  * you can think about this as something like a react-redux container
-  //  * for arbitrary asynchronous side effects
-  //  */
-  // const subscriber = ({ items, onSaved }) =>
-  //   items.map((item) => asyncSaveFunction(item, onSaved))
-  //
-  // const mapStateToProps = (state, prevState) => {
-  //   const newItemTexts = getDiff(getItemTextsSelector)
-  //     (state, prevState).after
-  //
-  //   return newItemTexts && {
-  //     items: newItemTexts.map((text) =>
-  //       state.items.find((item) => item.key === text)
-  //     )
-  //   }
-  // }
-  //
-  // const mapDispatchToProps = (dispatch, getState) => ({
-  //   onSaved: (item) =>
-  //     compose(dispatch, itemSavedActionCreator)(item.key)
-  // })
-  //
-  // const connectedSubscriber = connect(
-  //   mapStateToProps,
-  //   mapDispatchToProps
-  // )(subscriber)
-  //
-  // /* STORE */
-  // const store = createStore(reducer)
-  //
-  // // Connect the subscriber
-  // connectedSubscriber(store)
-  //
-  // // Start the thing by creating two items
-  // store.dispatch(addItemActionCreator('hello world of subscribers'))
-  // store.dispatch(addItemActionCreator('hola mundo de los subscribers'))
-  //
-  // /* ASSERTION */
-  // // Let's wait a couple of milliseconds for the asynchronous operations to
-  // // complete
-  // setTimeout(() => {
-  //   deepEqual(
-  //     store.getState().items,
-  //     [
-  //       {
-  //         key: 'hello world of subscribers',
-  //         saved: true
-  //       },
-  //
-  //       {
-  //         key: 'hola mundo de los subscribers',
-  //         saved: true
-  //       }
-  //     ]
-  //   )
-  //
-  //   done()
-  // }, 30)
+  /* SUBSCRIBER *new shiny thing*
+   * you can think about this as something like a react-redux container
+   * for arbitrary asynchronous side effects
+   */
+  const subscriber = ({ items, onSaved }) =>
+    items.map((item) => asyncSaveFunction(item, onSaved))
+
+  const mapStateToProps = (state, prevState) => {
+    const newItemKeys = getDiff(getItemKeysSelector)(prevState, state).after
+
+    return newItemKeys && {
+      items: newItemKeys.map(({ key }) =>
+        state.items.find((item) => item.key === key)
+      )
+    }
+  }
+
+  const mapDispatchToProps = (dispatch, getState) => ({
+    onSaved: (item) =>
+      compose(dispatch, itemSavedActionCreator)(item.key)
+  })
+
+  const connectedSubscriber = connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(subscriber)
+
+  /* STORE */
+  const store = createStore(reducer)
+
+  // Connect the subscriber
+  connectedSubscriber(store)
+
+  // Start the thing by creating two items
+  store.dispatch(addItemActionCreator('hello world of subscribers'))
+  store.dispatch(addItemActionCreator('hola mundo de los subscribers'))
+
+  /* ASSERTION */
+  // Let's wait a couple of milliseconds for the asynchronous operations to
+  // complete
+  setTimeout(() => {
+    deepEqual(
+      store.getState().items,
+      [
+        {
+          key: 'hello world of subscribers',
+          saved: true
+        },
+
+        {
+          key: 'hola mundo de los subscribers',
+          saved: true
+        }
+      ]
+    )
+
+    done()
+  }, 30)
 })
 
 example(`it will show an error if you try to dispatch synchronously`)
