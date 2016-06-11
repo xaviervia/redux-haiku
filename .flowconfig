@@ -1,0 +1,11 @@
+[ignore]
+.*/node_modules/.*
+.*/package.json
+
+[include]
+
+[libs]
+interfaces/
+
+[options]
+module.system=haste

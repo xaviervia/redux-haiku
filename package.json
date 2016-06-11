@@ -1,0 +1,29 @@
+{
+  "name": "redux-haiku",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "flow check --all && babel-node test"
+  },
+  "keywords": [
+    "redux",
+    "subscriptions",
+    "subscribe",
+    "side-effects",
+    "object-difference",
+    "diff"
+  ],
+  "author": "Fernando Vía Canel <fernando.via@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-plugin-transform-flow-strip-types": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "flow-bin": "^0.27.0",
+    "in-publish": "^2.0.0",
+    "redux": "^3.5.2",
+    "washington": "^0.12.0"
+  }
+}
