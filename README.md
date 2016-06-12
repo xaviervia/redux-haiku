@@ -1,8 +1,8 @@
-# <img src='redux-haiku.png' height='128'> redux-haiku
+# <img src='redux-haiku.png' height='128' title='redux-haiku'>
 
-> A saga is long and rambles on.
-> A haiku goes to the point.
-> Change!
+> A saga is long and rambles on.<br>
+> A haiku goes to the point.<br>
+> Change!<br>
 
 # DON'T USE YET
 
