@@ -171,7 +171,7 @@ There.
 
 A common pitfall when using Redux is how to handle operations that need to be done after several other operations happened. The temptation is to wait for a change in the state and react to that by immediately dispatching another action to reflect the fact that a new operation is being performed.
 
-_This is an anti pattern_. The reality is that any operation that can be performed as a result of the state change in a subscriber can already be done in a reducer or in a selector instead. Since redux-haiku makes it really easy for this antipattern to emerge, it also comes bundled with a mechanism for preventing abuse of it. For example:
+_This is an anti pattern_. The reality is that any operation that can be performed as a result of the state change in a subscriber can already be done in a reducer or in a selector instead. Since `redux-haiku` makes it really easy for this antipattern to emerge, it also comes bundled with a mechanism for preventing abuse of it. For example:
 
 ```javascript
 // subscribers/changeToCompactViewWhenTooManyItems.js
@@ -207,7 +207,7 @@ Error: dispatching synchronously in a Subscriber is forbidden. Callbacks provide
 2. …causes the global State to be updated and then
 3. …some side-effect runs
 
-This is the key principle that guides redux-haiku's implementation: side-effects should happen only as a consequence of state update, not by intercepting particular actions. This way the unidirectional data flow is preserved and the architecture remains consistent and easy to grasp.
+This is the key principle that guides `redux-haiku`'s implementation: side-effects should happen only as a consequence of state update, not by intercepting particular actions. This way the unidirectional data flow is preserved and the architecture remains consistent and easy to grasp.
 
 ## Important: `getDiff`'s quirks and limitations
 
@@ -356,7 +356,7 @@ getDiffForAll(
  */
 ```
 
-Naturally, the recommendation is to run the diff only in the subset of the state that you care about: otherwise is far more likely that you are going to have to double check to find out if an object is present because it was modified/removed/added completely or if it's only there because one of its inner properties changed. It will also help with performance somewhat to run scoped diff's, since the way redux-haiku Subscribers are wired, the diff'ing part will be run each time there is an update in the store state.
+Naturally, the recommendation is to run the diff only in the subset of the state that you care about: otherwise is far more likely that you are going to have to double check to find out if an object is present because it was modified/removed/added completely or if it's only there because one of its inner properties changed. It will also help with performance somewhat to run scoped diff's, since the way `redux-haiku` Subscribers are wired, the diff'ing part will be run each time there is an update in the store state.
 
 ### About `getDiff`s implementation and future
 
