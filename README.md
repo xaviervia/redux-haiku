@@ -1,4 +1,4 @@
-# ![redux-haiku](redux-haiku.svg) redux-haiku
+# ![redux-haiku](redux-haiku-small.png) redux-haiku
 
 > A saga is long and rambles on.
 > A haiku goes to the point.
