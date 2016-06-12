@@ -4,6 +4,8 @@
 > A haiku goes to the point.
 > Change!
 
+# DON'T USE YET
+
 **redux-haiku** is yet another way of managing side-effects in Redux: but don't be disheartened, because this time it's going to be so easy and natural that when you are done you're going to be left wondering why didn't we do it this way in the first place.
 
 If you're using Redux, chances are that you are familiar with the **Containers** from `react-redux`: well, `redux-haiku` **Subscribers** work exactly like Containers, but allow you to operate with any type of side-effects, not just DOM related ones.
@@ -157,8 +159,53 @@ export default connect(mapStateToProps)(syncToLocalStorage)
 
 There.
 
+## Not for synchronous control flow
+
+A common pitfall when using Redux is how to handle operations that need to be done after several other operations happened (TODO: think an actual example!). The temptation is to wait for a change in the state and react to that by immediately dispatching another action to reflect the fact that a new operation is being performed.
+
+_This is an anti pattern_. The reality is that any operation that can be performed as a result of the state change in a subscriber can already be done in a reducer or in a selector instead. Since redux-haiku makes it really easy for this antipattern to emerge, it also comes bundled with a mechanism for preventing abuse of it. For example:
+
+```javascript
+// subscribers/changeToCompactViewWhenTooManyItems.js
+import { connect } from 'redux-haiku'
+import { compose } from 'redux'
+import * as actions from '../actions'
+
+const changeToCompactViewWhenTooManyItems = ({ items, onThresholdTrespassed }) => {
+  if (items.length > 10) {
+    onThresholdTrespassed(items.length)
+  }
+}
+
+const mapStateToProps = (state) => state
+const mapDispatchToProps = (dispatch) => ({
+  onThresholdTrespassed: compose(dispatch, actions.changeToCompactView)
+})
+
+export connect(mapStateToProps, mapDispatchToProps)(changeToCompactViewWhenTooManyItems)
+```
+
+This will result in an exception! Namely:
+
+```
+Error: dispatching synchronously in a Subscriber is forbidden. Callbacks provided to Subscribers are meant to be used by asynchronous side effects as a way to trigger actions back into the store. Operations on the store to be done as a consequence of a particular state change should be done in reducers or selectors instead.
+```
+
 ## Kudos
 
-...to the people of redux-saga for a nice original idea and an impressive implementation. The tongue-in-cheek reference to sagas in the introduction haiku is meant as a tribute and to give context to the name of redux-haiku. Thank you folks.
+- ...to the people of redux-saga for a nice original idea and an impressive implementation. The tongue-in-cheek reference to sagas in the introduction haiku is meant as a tribute and to give context to the name of redux-haiku. Thank you folks.
+- ...to pirelenito for very useful feedback that helped in shaping this implementation.
 
-> Oh, and a final note: feature-wise, this is super alpha, because the underlying diffing library `object-difference` is not stable at all yet. Other than that it should be bug free. Still, you're welcome to use it in production: after all, you are very likely already compiling stage-0 babel code, which is not even standard yet, you naughty naughty kid.
+## Mandatory alpha warning
+
+Oh, and a final note: feature-wise, this is super alpha, because the underlying diffing library `object-difference` is not stable at all yet.
+
+Other than that it should be bug free. Still, you're welcome to use it in production: after all, you are very likely already compiling stage-0 babel code, which is not even standard yet, you naughty naughty kid.
+
+## License
+
+Copyright 2016 Fernando Vía Canel
+
+ISC license.
+
+See [LICENSE](LICENSE) attached.

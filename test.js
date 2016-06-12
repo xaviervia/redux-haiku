@@ -65,7 +65,7 @@ example(`save an item removed after it's is added`, (done) => {
         }
 
       default:
-        return initialState
+        return state
     }
   }
 
@@ -102,7 +102,7 @@ example(`save an item removed after it's is added`, (done) => {
   )(subscriber)
 
   /* STORE */
-  const store = createStore(reducer)
+  const store = createStore(reducer, initialState)
 
   // Connect the subscriber
   connectedSubscriber(store)
@@ -134,6 +134,55 @@ example(`save an item removed after it's is added`, (done) => {
   }, 30)
 })
 
-example(`it will show an error if you try to dispatch synchronously`)
+example(`it will show an error if you try to dispatch synchronously`, (done) => {
+  const addItem = (key) => ({
+    type: 'ADD_ITEM',
+    payload: { key }
+  })
+
+  const compactItems = () => ({
+    type: 'COMPACT_ITEMS'
+  })
+
+  const initialState = { items: [], compacted: false }
+
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'ADD_ITEM':
+        return { ...state, items: [ ...state.items, action.payload ] }
+
+      case 'COMPACT_ITEMS':
+        return { ...state, compected: true }
+
+      default:
+        return state
+    }
+  }
+
+  const store = createStore(reducer, initialState)
+
+  const faultySubscriber = ({ items, onThirdItem }) => {
+    if (items.length > 2) {
+      onThirdItem()
+    }
+  }
+  const mapStateToProps = (state) => state
+  const mapDispatchToProps = (dispatch) => ({
+    onThirdItem: compose(dispatch, compactItems)
+  })
+
+  const connectedFaultySubscriber = connect(mapStateToProps, mapDispatchToProps)(faultySubscriber)
+
+  connectedFaultySubscriber(store)
+
+  store.dispatch(addItem('first'))
+  store.dispatch(addItem('second'))
+
+  try {
+    store.dispatch(addItem('third'))
+  } catch (e) {
+    done(e.message, `Dispatching synchronously in a Subscriber is forbidden. Callbacks provided to Subscribers are meant to be used by asynchronous side effects as a way to trigger actions back into the store. Operations on the store to be done as a consequence of a particular state change should be done in reducers or selectors instead.`)
+  }
+})
 
 example.go()
