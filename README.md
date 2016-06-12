@@ -8,7 +8,7 @@
 
 If you're using Redux, chances are that you are familiar with the [**Containers**](http://redux.js.org/docs/basics/UsageWithReact.html) from [`react-redux`](https://github.com/reactjs/react-redux): well, `redux-haiku` **Subscribers** work exactly like Containers, but they allow you to operate with any type of side-effect, not just DOM related ones.
 
-Be mindful though, `redux-haiku` Subscribers are a rather low level API for implementing bindings between Redux stores and diverse side-effects: it's very likely that your application should be consuming a binding library that uses `redux-haiku` internally, instead of setting up Subscribers directly in the app.
+Be mindful though, `redux-haiku` Subscribers are a rather low level API for implementing bindings between Redux stores and diverse side-effects: it's very likely that your application should be consuming a binding library that uses `redux-haiku` internally, instead of setting up Subscribers directly in the app. Of course, this is a new implementation, and such libraries do not exist: but they might in the future, especially if you create some. If there are bindings already out there for what you want to do (say, [connect the store to Falcor](https://github.com/ekosz/redux-falcor)) you're very likely better off using that.
 
 Without further ado, take a look at how a Subscriber looks like:
 
@@ -54,7 +54,7 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps)(syncNew)
 ```
 
-Looks familiar, right? That's exactly the point. What `redux-haiku` proposes is that any side-effect can be treated just like a DOM side-effect–that is, it can be done as a result of a state change. The state change can be identified by running a diff between the new and the old states on the segment of the state that the side-effect cares about, in the meanwhile reusing established patterns such as selectors, `mapStateToProps`, `mapDispatchToProps`, etc.
+Looks familiar, right? That's exactly the point. What `redux-haiku` proposes is that any side-effect can be treated just like a DOM side-effect–that is, it can be done as the result of a state change. The state change can be identified by running a diff between the new and the old states on the segment of the state that the side-effect cares about, in the meanwhile reusing established patterns such as selectors, `mapStateToProps`, `mapDispatchToProps`, etc.
 
 Now, the "aha" moment of Redux plus React is time traveling: that's when we all realized that Redux proved its metal. Time traveling is a simple litmus test for identifying an architecture that makes for immutable, declarative apps. Time traveling for any kind of side-effects is what `redux-haiku` promises–with the only limitation that the side-effect operations need to be idempotent ones.
 
@@ -213,7 +213,7 @@ This is the key principle that guides redux-haiku's implementation: side-effects
 
 Now for a quick disclaimer:
 
-> `getDiff` is not stable and works as expected under certain specific conditions. It's implementation is very likely to change.
+> `getDiff` is not stable and it only works as expected under certain specific conditions. Its implementation is very likely to change.
 
 Unlike `connect`, which is unlikely to change much in the future, `getDiff` is an experimental part of the API that is provided partially to illustrate the fact that there is nothing arcane about React's diff'ing feature and that you and anyone you know can implement their own diff'ing if need so. It's important to note then that `getDiff` has a couple of short comings that are unlikely to be addressed in the near future, mainly because of inherent limitations of JavaScript as a programming language.
 

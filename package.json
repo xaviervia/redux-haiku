@@ -1,7 +1,7 @@
 {
   "name": "redux-haiku",
   "version": "0.1.4",
-  "description": "",
+  "description": "Redux side-effects using state diffs in subcribers",
   "main": "lib/index.js",
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib --ignore *.spec.js",
