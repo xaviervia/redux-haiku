@@ -1,4 +1,4 @@
-# <img src='redux-haiku.svg' height='80'> redux-haiku
+# <img src='redux-haiku.png' height='128'> redux-haiku
 
 > A saga is long and rambles on.
 > A haiku goes to the point.
