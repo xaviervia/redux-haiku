@@ -7,7 +7,7 @@
 [include]
 
 [libs]
-interfaces/
+src/interfaces/
 
 [options]
 module.system=haste
