@@ -1,4 +1,4 @@
-# redux-haiku
+# ![redux-haiku](redux-haiku.svg) redux-haiku
 
 > A saga is long and rambles on.
 > A haiku goes to the point.
@@ -15,13 +15,13 @@ Be mindful though, redux-haiku Subscribers are a rather low level API for implem
 Without further ado, take a look at how a Subscriber looks like:
 
 ```javascript
-// subscribers/putInServer.js
+// subscribers/syncNew.js
 import { connect, getDiff } from 'redux-haiku'
 import * as actions from '../actions'
 import { compose } from 'redux'
 import axios from 'axios' // Simple XHR lib
 
-const putInServer = ({ articles, onSuccess, onFailure }) => {
+const syncNew = ({ articles, onSuccess, onFailure }) => {
   articles.map((article) => {
     axios.put(`/articles/${article.key}`, { ...article })
       .then(() => onSuccess(article))
@@ -53,23 +53,23 @@ const mapDispatchToProps = (dispatch) => ({
   onFailure: compose(dispatch, actions.saveFailure)
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(putInServer)
+export default connect(mapStateToProps, mapDispatchToProps)(syncNew)
 ```
 
 Looks familiar, right? That's exactly the point. What redux-haiku proposes is that any side-effect can be treated as a DOM side-effect: that is, it can be done as a result of a state change, which can be done by running a diff between the new and the old states on the part that the side-effect should care about, in the meanwhile reusing established patterns such as selectors, `mapStateToProps`, `mapDispatchToProps`, etc. redux-haiku
 
-Now, the "aha" moment of Redux plus React is time traveling: that's when we all realized that Redux proved its metal. Time traveling is a way rule for identifying an architecture that makes for immutable, declarative apps. Time traveling is what redux-haiku promises, but not just for UI, but also for any other side-effects (that is, as long as the operations are idempotent, but that's a completely different concern).
+Now, the "aha" moment of Redux plus React is time traveling: that's when we all realized that Redux proved its metal. Time traveling is a simple rule for identifying an architecture that makes for immutable, declarative apps. Time traveling for any kind of side-effects is what redux-haiku promises (that is, as long as the operations are idempotent, but that's a completely different concern).
 
 Since we are using idempotent REST operations, let's assume that's the case. Then we can go full circle with another subscriber, this time for synchronizing the removal of articles:
 
 ```javascript
-// subscribers/deleteInServer.js
+// subscribers/syncDelete.js
 import { connect, getDiff } from 'redux-haiku'
 import * as actions from '../actions'
 import { compose } from 'redux'
 import axios from 'axios' // Simple XHR lib
 
-const deleteInServer = ({ articles, onSuccess, onFailure }) => {
+const syncDelete = ({ articles, onSuccess, onFailure }) => {
   articles.map((article) => {
     axios.delete(`/articles/${article.key}`)
       .then(() => onSuccess(article))
@@ -101,10 +101,10 @@ const mapDispatchToProps = (dispatch) => ({
   onFailure: compose(dispatch, actions.deleteFailure)
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(deleteInServer)
+export default connect(mapStateToProps, mapDispatchToProps)(syncDelete)
 ```
 
-redux-haiku will make sure that the Subscriber functions (`putInServer`, `deleteInServer`) _don't even get called_ if the `mapStateToProps` returns `undefined`. That plus the fact that the state diff is done in a small fraction of it more or less guarantees that the resulting implementation will remain performant.
+redux-haiku will make sure that the Subscriber functions (`syncNew`, `syncDelete`) _don't even get called_ if the `mapStateToProps` returns `undefined`. That plus the fact that the state diff is done in a small fraction of it more or less guarantees that the resulting implementation will remain performant.
 
 You can try it yourself in the `example` (TODO. Also provide some sort of live example with localStorage as side-effect instead of REST so it can be run completely local in the browser).
 
@@ -113,8 +113,8 @@ Finally, the integration as it's done in the store setup:
 ```javascript
 import { createStore } from 'redux'
 import reducer from './reducer'
-import connectedPutInServer from './subscribers/putInServer'
-import connectedDeleteInServer from './subscribers/deleteInServer'
+import connectedPutInServer from './subscribers/syncNew'
+import connectedDeleteInServer from './subscribers/syncDelete'
 
 const store = createStore(reducer, {})
 connectedPutInServer(store)
@@ -123,14 +123,14 @@ connectedDeleteInServer(store)
 
 ## Non-deterministic side-effects and alternative timelines
 
-Now, you might have realized that "time traveling" in the previous example is a little of a stretch: time travel is what we would get in the best case scenarios, that is, if all operation work perfectly the same every time.
+Now, you might have realized that "time traveling" in the previous example is a little of a stretch: time travel is what we would get in the best case scenario, that is, if all operations work perfectly every single time.
 
-Now, that doesn't mean that redux-haiku fails at it's promise. The reality is that time traveling, exactly like in the movies, can take many forms:
+Now, that doesn't mean that redux-haiku fails at its promise. The reality is that time traveling, exactly like in movies, can take many forms:
 
-- Fixed timeline: events happened in a certain way, and going back to the past and rewinding to the future results in the same events happening again. The events are unchangeable.
-- Multiple universes: events happened in a certain way in our timeline, but by going back we don't really land into the same timeline but instead we create a new one starting at the point that we rewind to. When we start going forward from there however, the events can diverge from the original timeline, and we can get an alternate universe where everything looks slightly dissimilar yet its structure is the same.
+- Fixed timeline: events happened in a certain way, and going back to the past and rewinding to the future results in the same events happening again. History is unchangeable.
+- Multiple universes: events happened in a certain way in our current timeline, but by going back we don't really land into the same timeline and instead we create a new one. When we start going forward from there however, the events can diverge from the original timeline, and we can get an alternate universe where everything looks slightly dissimilar yet the overall structure is the same.
 
-In the Multiple Universes timeline, we could get a failure when trying to create an article in the server, or a connection failure when trying to delete: whatever the issue, the resulting actions triggered by the side-effects would look different. This is a shame, but we could, actually, mitigate this: we simply need to react to failures by retrying until we succeed. The point is to achieve something the server-side folks call "eventual consistency" in which when going back and replaying, the resulting application state (that is, not just the redux store state but also including side-effects) eventually achieves the same state as it was in the main timeline at that particular point in time. Granted, there might be some ripples happening in the way (and it might be completely impossible if the side-effect relied on a service that went offline) but the fact that it's even possible to recover the entire application state deriving from the data in the store points to the resilience of this architecture, not to mention the fact that the implementation remains declarative and simple to understand and predictable within the margin of trust in the necessary services for the side-effects to occur.
+In the _Multiple universes_ timeline, we could get a failure when trying to create an article in the server, or a connection failure when trying to delete: whatever the issue, the resulting actions triggered by the side-effects would look different. This is a shame, but we could, actually, mitigate this: we simply need to react to failures by retrying until we succeed. The point is to achieve something the server-side folks call "eventual consistency" in which when going back and replaying, the resulting application state (that is, not just the redux store state but also including side-effects) eventually achieves the same state as it was in the main timeline at that particular point in time. Granted, there might be some ripples happening in the way (and it might be completely impossible if the side-effect relied on a service that went offline) but the fact that it's even possible to recover the entire application state deriving from the data in the store points to the resilience of this architecture, not to mention the fact that the implementation remains declarative and simple to understand and predictable within the margin of trust in the necessary services for the side-effects to occur.
 
 ## Deterministic side-effects
 
@@ -161,7 +161,7 @@ There.
 
 ## Not for synchronous control flow
 
-A common pitfall when using Redux is how to handle operations that need to be done after several other operations happened (TODO: think an actual example!). The temptation is to wait for a change in the state and react to that by immediately dispatching another action to reflect the fact that a new operation is being performed.
+A common pitfall when using Redux is how to handle operations that need to be done after several other operations happened. The temptation is to wait for a change in the state and react to that by immediately dispatching another action to reflect the fact that a new operation is being performed.
 
 _This is an anti pattern_. The reality is that any operation that can be performed as a result of the state change in a subscriber can already be done in a reducer or in a selector instead. Since redux-haiku makes it really easy for this antipattern to emerge, it also comes bundled with a mechanism for preventing abuse of it. For example:
 
