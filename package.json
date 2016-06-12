@@ -4,6 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "build": "rm -rf lib && babel src --out-dir lib --ignore *.spec.js",
+    "prepublish": "not-in-install && npm prune && npm test && npm run build || in-install",
     "test": "flow check --all && babel-node test"
   },
   "keywords": [
@@ -14,6 +16,10 @@
     "object-difference",
     "diff"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xaviervia/redux-haiku.git"
+  },
   "author": "Fernando Vía Canel <fernando.via@gmail.com>",
   "license": "ISC",
   "devDependencies": {
@@ -25,5 +31,8 @@
     "in-publish": "^2.0.0",
     "redux": "^3.5.2",
     "washington": "^0.12.0"
+  },
+  "dependencies": {
+    "object-difference": "^0.1.0"
   }
 }
