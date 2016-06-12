@@ -317,14 +317,43 @@ getDiffForAll(
   },
 
   {
-
+    items: [
+      {
+        key: 'modified',
+        value: 'final',
+        kept: 'same'
+      }
+    ],
+    modified: {
+      different: 'only in part',
+      kept: 'same'
+    }
   }
-) // => { before: undefined, after: [{ key: 'new' }] }
-
-getDiffForAll(
-  [{ key: 'removed' }, { key: 'same' }],
-  [{ key: 'same' }]
-) // => { before: [{ key: 'removed' }], after: undefined }
+)
+/*
+ * => {
+ *  before: {
+ *    items: [
+ *       {
+ *         value: 'initial'        
+ *       }
+ *     ],
+ *     modified: {
+ *       but: 'only in part'
+ *     }
+ *   },
+ *   after: {
+ *     items: [
+ *       {
+ *         value: 'final'        
+ *       }
+ *     ],
+ *     modified: {
+ *       different: 'only in part'
+ *     }
+ *   }
+ * }
+ */
 ```
 
 Naturally, the recommendation is to run the diff only in the subset of the state that you care about: otherwise is far more likely that you are going to have to double check to find out if an object is present because it was modified/removed/added completely or if it's only there because one of its inner properties changed. It will also help with performance somewhat to run scoped diff's, since the way redux-haiku Subscribers are wired, the diff'ing part will be run each time there is an update in the store state.
