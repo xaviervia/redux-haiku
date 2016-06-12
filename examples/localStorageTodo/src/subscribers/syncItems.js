@@ -1,8 +1,8 @@
 /* global localStorage */
 import { connect } from 'redux-haiku'
 
-const syncToLocalStorage = ({ tasks }) => {
-  localStorage.setItem('tasks', JSON.stringify(tasks))
+const syncItems = ({ tasks }) => {
+  localStorage.setItem('localStorageTodo.tasks', JSON.stringify(tasks))
 }
 
 const mapStateToProps = (state, prevState) => {
@@ -11,4 +11,4 @@ const mapStateToProps = (state, prevState) => {
   }
 }
 
-export default connect(mapStateToProps)(syncToLocalStorage)
+export default connect(mapStateToProps)(syncItems)

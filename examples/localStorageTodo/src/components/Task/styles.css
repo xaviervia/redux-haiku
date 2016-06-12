@@ -1,0 +1,67 @@
+.task {
+  border: 1px solid #555555;
+  border-width: 1px 0 0 0;
+  display: block;
+  margin: 0;
+  padding: .4rem;
+  position: relative;
+  line-height: 1.2rem;
+}
+
+.task:first-child {
+  border-width: 0;
+}
+
+.task.isDone {
+  font-style: italic;
+  color: #999999;
+}
+
+.remove, .done {
+  border: 1px solid #555555;
+  background: white;
+  cursor: pointer;
+  display: none;
+  float: right;
+  font-family: Lato, sans-serif;
+  font-size: .6rem;
+  height: 1.2rem;
+}
+
+.remove {
+  margin-right: -.4rem;
+}
+
+.task:hover .remove {
+  display: block;
+}
+
+.task:hover .remove:hover {
+  border-color: red;
+  color: red;
+}
+
+.task:hover .remove:active,
+.task:hover .remove:focus {
+  background: red;
+  color: white;
+}
+
+.done {
+  margin-right: .4rem;
+}
+
+.task:hover .done {
+  display: block;
+}
+
+.task:hover .done:hover {
+  border-color: green;
+  color: green;
+}
+
+.task:hover .done:active,
+.task:hover .done:focus {
+  background: green;
+  color: white;
+}

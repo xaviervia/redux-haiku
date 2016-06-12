@@ -1,37 +1,43 @@
-import { ADD_TASK, REMOVE_TASK, SET_AS_DONE } from './actionTypes'
-import uuid from 'uuid'
+import {
+  ADD_TASK,
+  LOAD_TASKS,
+  REMOVE_TASK,
+  SET_AS_DONE,
+  USER_INPUT
+} from './actionTypes'
 
 const initialState = {
-  tasks: [
-    {
-      key: uuid.v4(),
-      description: 'React to the news'
-    },
-    {
-      key: uuid.v4(),
-      description: 'Reduce the overhead'
-    },
-    {
-      key: uuid.v4(),
-      description: 'Graph the fastest path',
-      done: true
-    }
-  ]
+  tasks: [],
+  input: ''
 }
 
 export default (state = initialState, { type, payload }) => {
   switch (type) {
     case ADD_TASK:
+      if (state.input.trim() !== '') {
+        return {
+          ...state,
+          tasks: [
+            ...state.tasks,
+            { ...payload, description: state.input }
+          ],
+          input: ''
+        }
+      } else {
+        return state
+      }
+
+    case LOAD_TASKS:
       return {
         ...state,
-        tasks: [ ...state.tasks, payload ]
+        tasks: payload
       }
 
     case REMOVE_TASK:
       return {
         ...state,
         tasks: [
-          ...state.tasks.filter(task => task.key !== payload.key)
+          ...state.tasks.filter((task) => task.key !== payload.key)
         ]
       }
 
@@ -40,11 +46,17 @@ export default (state = initialState, { type, payload }) => {
         ...state,
         tasks: [
           ...state.tasks.map(
-            task => task.key === payload.key
+            (task) => task.key === payload.key
               ? { ...task, done: true }
               : task
           )
         ]
+      }
+
+    case USER_INPUT:
+      return {
+        ...state,
+        input: payload
       }
 
     default:

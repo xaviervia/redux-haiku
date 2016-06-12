@@ -1,0 +1,33 @@
+.input, .button {
+  border: 1px solid #333333;
+  font-family: Lato, sans-serif;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  padding: .4rem;
+  margin: 0;
+}
+
+.input {
+  width: calc(100% - 6rem);
+}
+
+.button {
+  background: #333333;
+  color: white;
+  cursor: pointer;
+  width: 6rem;
+}
+
+.button:hover {
+  background: #222222;
+}
+
+.button:focus, .button:active {
+  background: black;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
