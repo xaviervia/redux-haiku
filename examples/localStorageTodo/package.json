@@ -1,0 +1,26 @@
+{
+  "name": "localStorage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run develop",
+    "develop": "sagui develop",
+    "build": "sagui build",
+    "dist": "NODE_ENV=production sagui dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sagui": "^4.4.1"
+  },
+  "dependencies": {
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
+    "redux-haiku": "^0.1.2",
+    "uuid": "^2.0.2"
+  }
+}
